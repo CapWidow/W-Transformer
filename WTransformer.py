@@ -44,17 +44,17 @@ from darts.models import (
 
 if __name__ == "__main__":
     freeze_support()
-    nforecastList = [13,26,52]
+    nforecastList = [288,576]
 
     for nforecast in nforecastList:
 
         # use glob to get all the csv files 
         # in the folder
-        path = 'C:/Users/Admin/ResearchW/MODWT/FinalTest'
+        path = 'C:/Users/Admin/ResearchW/MODWT/Data/Data_tmp'
         csv_files = glob.glob(os.path.join(path, "*.csv"))
         # loop over the list of csv files
         for f in csv_files:
-            with open('Result_13_26_52_MODWT_Final_without_val_Dmodel64_nhead32.csv', 'a', encoding='UTF8') as r:
+            with open('Result_288_576_Network.csv', 'a', encoding='UTF8') as r:
                 writer = csv.writer(r)
                 writer.writerow([f,nforecast])
             # read the csv file
@@ -135,7 +135,7 @@ if __name__ == "__main__":
             train_reindex = TimeSeries.from_dataframe(train_reindex)
             val_reindex = TimeSeries.from_dataframe(val_reindex)
 
-            with open('Result_13_26_52_MODWT_Final_MASE_without_val.csv', 'a', encoding='UTF8') as f:
+            with open('Result_288_576_Network.csv', 'a', encoding='UTF8') as f:
                 writer = csv.writer(f)
                 writer.writerow(['WTransformer',rmse(val_reindex,res),mape(val_reindex,res),mae(val_reindex,res),smape(val_reindex,res),mase(val_reindex,res,train_reindex)])
             
