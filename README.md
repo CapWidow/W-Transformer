@@ -1,6 +1,6 @@
 # W-Transformers : A Wavelet-based Transformer Framework for Univariate Time Series Forecasting
 
-W-Transformer is a new framework to forecast univariate time series. To know more about the achievement of W-Transformer or contact us for more information, you can find the full paper [here](https://arxiv.org/abs/2209.03945). 
+W-Transformer is a new framework to forecast univariate time series. To know more about the achievement of W-Transformers or contact us for more information, you can find the full paper [here](https://arxiv.org/abs/2209.03945). 
 
 ## Installation
 
@@ -58,7 +58,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ## Cite
 
-If this research help you in your work please cite [W-Transformer](https://arxiv.org/abs/2209.03945) :
+If this research help you in your work please cite [W-Transformers](https://arxiv.org/abs/2209.03945) :
 
 ```
 @article{sasal2022w,
