@@ -1,67 +1,43 @@
-from cgi import test
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 import csv 
 
 import os
 import glob
 from multiprocessing import freeze_support
-from modwtpy.modwt import modwt, modwtmra, imodwt
+from modwtpy.modwt import modwt, imodwt
 
 
 from darts import TimeSeries
-from darts.datasets import AirPassengersDataset, MonthlyMilkDataset,USGasolineDataset
-from darts.dataprocessing.transformers import Scaler
-from darts.utils.statistics import check_seasonality, plot_acf, plot_residuals_analysis, plot_hist
 from darts.metrics import mape, mase, rmse,mae,smape
 
 
 
 #Importing the testing models
 from darts.models import (
-    NaiveSeasonal,
-    NaiveDrift,
-    Prophet,
-    ExponentialSmoothing,
-    ARIMA,
-    AutoARIMA,
-    VARIMA,
-    BATS,
-    TBATS,
-    StatsForecastAutoARIMA,
-    RegressionEnsembleModel,
-    RegressionModel,
-    Theta,
-    FourTheta,
-    FFT,
-    NBEATSModel,
-    TFTModel,
-    RNNModel,
     TransformerModel,
 )
 
 
 if __name__ == "__main__":
     freeze_support()
-    nforecastList = [288,576]
+    nforecastList = [26,52]
 
     for nforecast in nforecastList:
 
         # use glob to get all the csv files 
         # in the folder
-        path = 'C:/Users/Admin/ResearchW/MODWT/Data/Data_tmp'
+        path = '/Users/lenasasal/Documents/Change_WTransformer/W-Transformer/Data/Weekly13-26-52/'
         csv_files = glob.glob(os.path.join(path, "*.csv"))
+        filename = 'TestNewWay.csv'
         # loop over the list of csv files
         for f in csv_files:
-            with open('Result_288_576_Network.csv', 'a', encoding='UTF8') as r:
+            with open(filename, 'a', encoding='UTF8') as r:
                 writer = csv.writer(r)
                 writer.writerow([f,nforecast])
             # read the csv file
             df = pd.read_csv(f)
             series = df['Cases']
-            print(series)
-            print('nForecast = ', nforecast)
             wt = modwt(series, 'haar', int(np.log(len(series))))
             seriesList = []
             train = []
@@ -82,7 +58,8 @@ if __name__ == "__main__":
                 
                 wt_df_val = wt_df[nb_time-nforecast:]
                 val.append(wt_df_val)
-
+            
+            prediction = []
             models_transformers = []
             for i in range(len(train)):
                 transformers = TransformerModel(
@@ -104,20 +81,21 @@ if __name__ == "__main__":
                 random_state=42,
                 save_checkpoints=True,
                 force_reset=True,
-                pl_trainer_kwargs = {"accelerator": "gpu", 
-                                    "gpus": -1, 
-                                    "auto_select_gpus": True},
+                #pl_trainer_kwargs = {"accelerator": "gpu", 
+                #                    "gpus": -1, 
+                #                    "auto_select_gpus": True},
                 )
-                models_transformers.append(transformers.fit(series = train[i], verbose=True))
-            prediction = []
-            for i in range(len(train)):
-                model_loaded = TransformerModel.load_from_checkpoint("transformer"+str(i), best=False)
-                pred_series = model_loaded.historical_forecasts(seriesList[i],
+                transformers.fit(series = train[i], verbose=True)
+                print('seriesList = ',seriesList[i])
+                print('nb-time-nforecast = ',nb_time-nforecast)
+                pred_series = transformers.historical_forecasts(seriesList[i],
                                                                 start = nb_time-nforecast,
                                                                 retrain=False,
-                                                                verbose=False,
+                                                                verbose=True,
                                                                 )
                 prediction.append(pred_series)
+            
+            
             prediction_tmp = prediction[0].pd_dataframe()
 
             for i in range(1,len(prediction)):
@@ -135,7 +113,7 @@ if __name__ == "__main__":
             train_reindex = TimeSeries.from_dataframe(train_reindex)
             val_reindex = TimeSeries.from_dataframe(val_reindex)
 
-            with open('Result_288_576_Network.csv', 'a', encoding='UTF8') as f:
+            with open(filename, 'a', encoding='UTF8') as f:
                 writer = csv.writer(f)
                 writer.writerow(['WTransformer',rmse(val_reindex,res),mape(val_reindex,res),mae(val_reindex,res),smape(val_reindex,res),mase(val_reindex,res,train_reindex)])
             
